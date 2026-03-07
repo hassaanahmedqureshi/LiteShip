@@ -3,10 +3,26 @@ sys.path.append('.')
 
 from repositories.db_manager import DatabaseManager
 
-def seed_database():
+def seed_database(reset = False):
     db = DatabaseManager()
     conn = db.get_connection()
     cursor = conn.cursor()
+
+    if reset:
+        print("Clearing existing data...")
+        cursor.execute("DELETE FROM markup_rules")
+        cursor.execute("DELETE FROM sales_list")
+        cursor.execute("DELETE FROM clients")
+        cursor.execute("DELETE FROM accessories")
+        cursor.execute("DELETE FROM freight_rates")
+        cursor.execute("DELETE FROM master_list")
+        conn.commit()
+
+    cursor.execute("SELECT COUNT(*) FROM master_list")
+    if cursor.fetchone()[0] > 0:
+        print("DB already seeded, user reset=True to clear db")
+        conn.close()
+        return
 
     # Master List (SDA)
     cursor.execute("INSERT INTO master_list (name, courier) VALUES (?, ?)",
@@ -71,4 +87,6 @@ def seed_database():
     print("Database seeded with example data")
 
 if __name__ == '__main__':
-    seed_database()
+    import sys
+    reset = len(sys.argv) > 1 and sys.argv[1] == 'reset'
+    seed_database(reset=reset)
