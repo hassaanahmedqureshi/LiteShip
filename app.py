@@ -57,6 +57,46 @@ def calculate_quote():
             "error": str(e)
         }), 400
 
+@app.route('/api/clients', methods=['POST'])
+def create_client():
+    """
+    Create new client
+    Body: {
+        "name": "Gamma",
+        "code": "GAMMA001"
+    }
+    """
+    try:
+        data = request.json
+        db = DatabaseManager()
+        conn = db.get_connection()
+        cursor = conn.cursor()
+
+        # Check if client code already exists
+        cursor.execute("SELECT id FROM clients WHERE code = ?", (data['code'],))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({"success": False, "error": "Client code already exists"}), 400
+
+        # Create client
+        cursor.execute(
+            "INSERT INTO clients (name, code) VALUES (?, ?)",
+            (data['name'], data['code'])
+        )
+        client_id = cursor.lastrowid
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "client_id": client_id,
+            "message": "Client created successfully"
+        }), 201
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
 @app.route('/api/sales-list', methods=['POST'])
 def create_sales_list():
     """
@@ -117,7 +157,8 @@ def health():
 if __name__ == '__main__':
     print("LiteShip API running on http://localhost:5000")
     print("Endpoints:")
-    print("  POST /api/quote - Calculate shipping quote")
+    print("  POST /api/clients - Create new client")
     print("  POST /api/sales-list - Create new sales price list")
+    print("  POST /api/quote - Calculate shipping quote")
     print("  GET /api/health - Health check")
     app.run(debug=True, port=5000)

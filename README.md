@@ -46,7 +46,26 @@ Margine:        €2.82
 python app.py
 ```
 
-### 3. Calcola Preventivo via API
+### 3. Crea Nuovo Cliente
+```bash
+curl -X POST http://localhost:5000/api/clients \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Beta",
+    "code": "BETA001"
+  }'
+```
+
+**Risposta:**
+```json
+{
+  "success": true,
+  "client_id": 2,
+  "message": "Client created successfully"
+}
+```
+
+### 4. Calcola Preventivo via API
 ```bash
 curl -X POST http://localhost:5000/api/quote \
   -H "Content-Type: application/json" \
@@ -76,7 +95,7 @@ curl -X POST http://localhost:5000/api/quote \
 }
 ```
 
-### 4. Crea Nuovo Listino Vendita
+### 5. Crea Nuovo Listino Vendita
 ```bash
 curl -X POST http://localhost:5000/api/sales-list \
   -H "Content-Type: application/json" \
@@ -187,7 +206,26 @@ Margin:      €2.82
 python app.py
 ```
 
-### 3. Calculate Quote via API
+### 3. Create New Client
+```bash
+curl -X POST http://localhost:5000/api/clients \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Beta",
+    "code": "BETA001"
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "client_id": 2,
+  "message": "Client created successfully"
+}
+```
+
+### 4. Calculate Quote via API
 ```bash
 curl -X POST http://localhost:5000/api/quote \
   -H "Content-Type: application/json" \
@@ -217,7 +255,7 @@ curl -X POST http://localhost:5000/api/quote \
 }
 ```
 
-### 4. Create New Sales Price List
+### 5. Create New Sales Price List
 ```bash
 curl -X POST http://localhost:5000/api/sales-list \
   -H "Content-Type: application/json" \
