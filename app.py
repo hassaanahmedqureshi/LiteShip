@@ -57,11 +57,67 @@ def calculate_quote():
             "error": str(e)
         }), 400
 
+@app.route('/api/sales-list', methods=['POST'])
+def create_sales_list():
+    """
+    Create new sales price list
+    Body: {
+        "client_code": "BETA001",
+        "master_list_id": 1,
+        "markup_rules": [
+            {"applies_to": "freight", "calc_type": "percent", "value": 15},
+            {"applies_to": "handling", "calc_type": "fixed", "value": 2.0},
+            {"applies_to": "cod", "calc_type": "override", "value": 2.5}
+        ]
+    }
+    """
+    try:
+        data = request.json
+        db = DatabaseManager()
+        conn = db.get_connection()
+        cursor = conn.cursor()
+
+        # Get client ID
+        cursor.execute("SELECT id FROM clients WHERE code = ?", (data['client_code'],))
+        client_row = cursor.fetchone()
+        if not client_row:
+            conn.close()
+            return jsonify({"success": False, "error": "Client not found"}), 404
+
+        # Create sales list
+        cursor.execute(
+            "INSERT INTO sales_list (client_id, master_list_id) VALUES (?, ?)",
+            (client_row[0], data['master_list_id'])
+        )
+        sales_list_id = cursor.lastrowid
+
+        # Add markup rules
+        for rule in data['markup_rules']:
+            cursor.execute(
+                "INSERT INTO markup_rules (sales_list_id, applies_to, calc_type, value) VALUES (?, ?, ?, ?)",
+                (sales_list_id, rule['applies_to'], rule['calc_type'], rule['value'])
+            )
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "sales_list_id": sales_list_id,
+            "message": "Sales price list created successfully"
+        }), 201
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({"status": "ok", "service": "LiteShip Pricing Engine"})
 
 if __name__ == '__main__':
     print("LiteShip API running on http://localhost:5000")
-    print("Docs: POST /api/quote | GET /api/health")
+    print("Endpoints:")
+    print("  POST /api/quote - Calculate shipping quote")
+    print("  POST /api/sales-list - Create new sales price list")
+    print("  GET /api/health - Health check")
     app.run(debug=True, port=5000)

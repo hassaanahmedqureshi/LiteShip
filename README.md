@@ -76,6 +76,29 @@ curl -X POST http://localhost:5000/api/quote \
 }
 ```
 
+### 4. Crea Nuovo Listino Vendita
+```bash
+curl -X POST http://localhost:5000/api/sales-list \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_code": "ALFA001",
+    "master_list_id": 1,
+    "markup_rules": [
+      {"applies_to": "freight", "calc_type": "percent", "value": 15},
+      {"applies_to": "handling", "calc_type": "fixed", "value": 2.0}
+    ]
+  }'
+```
+
+**Risposta:**
+```json
+{
+  "success": true,
+  "sales_list_id": 2,
+  "message": "Sales price list created successfully"
+}
+```
+
 ## Struttura Progetto
 
 ```
@@ -191,6 +214,29 @@ curl -X POST http://localhost:5000/api/quote \
       "handling": 1.0
     }
   }
+}
+```
+
+### 4. Create New Sales Price List
+```bash
+curl -X POST http://localhost:5000/api/sales-list \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_code": "ALFA001",
+    "master_list_id": 1,
+    "markup_rules": [
+      {"applies_to": "freight", "calc_type": "percent", "value": 15},
+      {"applies_to": "handling", "calc_type": "fixed", "value": 2.0}
+    ]
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "sales_list_id": 2,
+  "message": "Sales price list created successfully"
 }
 ```
 
