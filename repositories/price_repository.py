@@ -11,6 +11,47 @@ class PriceRepository:
     def __init__(self):
         self.db = DatabaseManager()
 
+    def create_client(self, name, code):
+        conn = self.db.get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id FROM clients WHERE code = ?", (code,))
+        if cursor.fetchone():
+            conn.close()
+            raise ValueError("Client code already exists")
+
+        cursor.execute("INSERT INTO clients (name, code) VALUES (?, ?)", (name, code))
+        client_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return client_id
+
+    def create_sales_list(self, client_code, master_list_id, markup_rules):
+        conn = self.db.get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id FROM clients WHERE code = ?", (client_code,))
+        client_row = cursor.fetchone()
+        if not client_row:
+            conn.close()
+            raise ValueError(f"Client {client_code} not found")
+
+        cursor.execute(
+            "INSERT INTO sales_list (client_id, master_list_id) VALUES (?, ?)",
+            (client_row[0], master_list_id)
+        )
+        sales_list_id = cursor.lastrowid
+
+        for rule in markup_rules:
+            cursor.execute(
+                "INSERT INTO markup_rules (sales_list_id, applies_to, calc_type, value) VALUES (?, ?, ?, ?)",
+                (sales_list_id, rule['applies_to'], rule['calc_type'], rule['value'])
+            )
+
+        conn.commit()
+        conn.close()
+        return sales_list_id
+
     def get_first_master_list(self):
         conn = self.db.get_connection()
         cursor = conn.cursor()
