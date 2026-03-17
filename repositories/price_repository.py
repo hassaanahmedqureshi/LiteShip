@@ -11,6 +11,16 @@ class PriceRepository:
     def __init__(self):
         self.db = DatabaseManager()
 
+    def get_first_master_list(self):
+        conn = self.db.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM master_list LIMIT 1")
+        row = cursor.fetchone()
+        conn.close()
+        if not row:
+            raise ValueError("No master list found")
+        return self.get_master_list(row[0])
+
     def get_master_list(self, master_id):
         conn = self.db.get_connection()
         cursor = conn.cursor()

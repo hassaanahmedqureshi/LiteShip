@@ -28,15 +28,7 @@ def calculate_quote():
         repo = PriceRepository()
         engine = PricingEngine()
 
-        # Get master list
-        db = DatabaseManager()
-        conn = db.get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id FROM master_list LIMIT 1")
-        master_id = cursor.fetchone()[0]
-        conn.close()
-
-        master = repo.get_master_list(master_id)
+        master = repo.get_first_master_list()
         sales = repo.get_sales_list_by_client_code(data['client_code'])
 
         quote = engine.calculate_quote(
